@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="흥부네 박타기">
+<title>흥부네 랜덤 박타기 게임</title>
+<style>
+:root{--h:100dvh;--brown:#5b2a16;--deep:#3d180b;--cream:#fff8df;--gold:#ffc23c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:#176c99;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--deep);-webkit-text-size-adjust:100%}
+body{display:grid;place-items:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,input,select{font:inherit;font-size:16px}button{touch-action:manipulation;cursor:pointer;-webkit-user-select:none;user-select:none}
+.game{position:relative;width:min(100vw,calc(var(--h)*1.77778));height:min(56.25vw,var(--h));max-width:100%;max-height:100%;aspect-ratio:16/9;overflow:hidden;background:url("assets/background.png") center/cover no-repeat;isolation:isolate}
+.game:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#fff1,transparent 35%,#ffe79f10);z-index:1}
+.title{position:absolute;z-index:20;top:2.2%;left:50%;transform:translateX(-50%);width:56%;height:11.8%;display:grid;place-items:center;border:4px solid #fff6d1;border-radius:30px;background:linear-gradient(#fff9de,#ffe7a3);box-shadow:0 6px 0 #a6531f,0 12px 24px #532b0d2e}
+.title span{font-size:clamp(30px,3.2vw,66px);font-weight:1000;letter-spacing:-.06em;white-space:nowrap;color:#713317;text-shadow:0 2px #fff}.title b{color:#e97a18}
+.settings{position:absolute;z-index:30;right:2.8%;top:3.6%;width:clamp(50px,4.5vw,76px);aspect-ratio:1;border:0;border-radius:50%;background:linear-gradient(#fffdf2,#f5d78d);color:#673117;box-shadow:inset 0 0 0 3px #fff8d5,0 4px 0 #a95820;font-size:clamp(24px,2.2vw,38px);font-weight:900}
+.sub{position:absolute;z-index:10;top:15.2%;left:50%;transform:translateX(-50%);padding:.5em 1.5em;border-radius:999px;background:#fffae8ed;border:2px solid #7b431659;font-size:clamp(13px,1.25vw,25px);font-weight:900;white-space:nowrap;color:#753619}
+.char{position:absolute;z-index:4;bottom:1.8%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 12px 8px #532d0f2e)}.hb{left:3.2%;width:24.8%}.wm{right:3.1%;width:24.1%}
+.gourd{position:absolute;z-index:7;bottom:13.6%;width:27.7%;border:0;background:transparent;padding:0}.gourd img{display:block;width:100%;filter:drop-shadow(0 12px 7px #4d2d1033)}.gourd:active img{transform:scale(.98)}.g1{left:20.2%}.g2{left:36.15%}.g3{left:52.1%}
+.label{position:absolute;z-index:12;bottom:8.1%;width:11.2%;height:5.7%;display:grid;place-items:center;border-radius:999px;background:linear-gradient(#fff9df,#ffe6a3);border:3px solid #71391d;box-shadow:0 4px 0 #b45d23;font-size:clamp(13px,1.28vw,25px);font-weight:1000;color:#652d15;pointer-events:none}.l1{left:28.4%}.l2{left:44.4%}.l3{left:60.35%}
+.hint{position:absolute;z-index:11;left:50%;bottom:2%;transform:translateX(-50%);font-size:clamp(12px,1.08vw,21px);font-weight:850;color:#6b341b;background:#fffae8e8;padding:.35em 1em;border-radius:999px;white-space:nowrap}
+.overlay{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#28160970;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.18s}.overlay.show{opacity:1;pointer-events:auto}
+.panel{position:relative;border:5px solid #6b3015;background:linear-gradient(#fffdf0,#fff0bd);border-radius:34px;box-shadow:0 24px 70px #2b13065c}
+.result{width:min(56%,760px);min-width:480px;min-height:67%;padding:5% 6% 4%;display:flex;flex-direction:column;align-items:center;text-align:center}.ribbon{position:absolute;left:50%;top:-5.5%;transform:translateX(-50%);padding:.38em 1.35em;border:4px solid #7e2918;border-radius:18px;background:linear-gradient(#f96a47,#d43c2d);color:#fff9dc;font-size:clamp(19px,2vw,38px);font-weight:1000;box-shadow:0 5px 0 #8a2a18;white-space:nowrap}.iconbox{height:clamp(118px,14.2vh,170px);width:70%;display:grid;place-items:center;margin-top:2%}.iconbox img{max-width:100%;max-height:100%;object-fit:contain}.rtitle{margin-top:clamp(42px,5.2vh,68px);font-size:clamp(25px,3.05vw,54px);font-weight:1000;color:#6e2f16}.rname{margin-top:2.2%;max-width:92%;padding:.46em 1.1em;border-radius:18px;background:#fff9df;border:3px solid #d59a43;font-size:clamp(17px,1.8vw,34px);font-weight:1000;color:#994215}.msg{margin-top:2%;font-size:clamp(12px,1.05vw,21px);font-weight:750;color:#87502f}
+.btn{border:3px solid #6c3115;border-radius:999px;padding:.62em 1.8em;font-size:clamp(14px,1.3vw,25px);font-weight:1000;box-shadow:0 5px 0 #9d4c1c;background:linear-gradient(#ffd64e,#f4a91c);color:#61270e}.retry{margin-top:auto}
+.settingsPanel{width:min(82%,1080px);height:min(88%,780px);padding:3.5% 4%;display:flex;flex-direction:column}.close{position:absolute;right:18px;top:16px;width:48px;height:48px;border:0;border-radius:50%;background:#fff4cc;color:#6a3117;font-size:28px;font-weight:1000}.stitle{text-align:center;font-size:clamp(24px,2.45vw,45px);font-weight:1000}.sdesc{text-align:center;margin:.3em 0 1.2em;font-size:clamp(12px,1vw,18px);font-weight:700;color:#91603c}.rows{display:grid;gap:9px;overflow:auto}.row{display:grid;grid-template-columns:36px minmax(150px,1.5fr) 125px minmax(130px,1fr) 90px;gap:10px;align-items:center;background:#ffffffb8;border:2px solid #e5b967;border-radius:16px;padding:8px 10px}.num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#ffcf48;border:2px solid #b96a24;font-weight:1000}.row input[type=text],.row select,.pct{height:42px;border:2px solid #d6a45b;border-radius:10px;background:#fffdf6;padding:0 10px;font-weight:800}.row input[type=range]{width:100%;accent-color:#78ae27}.pct{text-align:center;width:100%}.total{text-align:center;margin-top:12px;font-size:clamp(14px,1.2vw,23px);font-weight:1000}.error{min-height:1.4em;text-align:center;color:#bd3c2b;font-weight:800}.actions{margin-top:auto;display:flex;justify-content:center;gap:14px}.secondary{background:linear-gradient(#fffdf1,#f3dfaa);color:#673117}
+.toast{position:absolute;z-index:80;left:50%;bottom:4%;transform:translate(-50%,20px);padding:.7em 1.3em;border-radius:999px;background:#4b281ce8;color:#fff;font-weight:850;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.rotate{display:none}
+@media(orientation:portrait){.game{display:none}.rotate{display:flex;position:fixed;inset:0;align-items:center;justify-content:center;text-align:center;padding:30px;background:#fff4c9;color:#633018;font-size:24px;font-weight:900}}
+@media(max-aspect-ratio:4/3) and (orientation:landscape){.title{width:66%}.hb,.wm{width:23%}.result{min-width:0;width:68%}.settingsPanel{width:92%}}
+</style>
+</head>
+<body>
+<div class="rotate">아이패드를 가로 방향으로 돌려주세요.</div>
+<main class="game" id="game">
+  <div class="title"><span><b>흥부네</b> 랜덤 박타기 게임</span></div>
+  <button class="settings" id="settingsBtn" aria-label="상품 설정">⚙</button>
+  <div class="sub">마음에 드는 박을 하나 골라보세요!</div>
+  <img class="char hb" src="assets/heungbu.png" alt="">
+  <img class="char wm" src="assets/woman.png" alt="">
+  <button class="gourd g1" data-i="0" aria-label="1번 박 선택"><img src="assets/gourd_normal.png" alt="1번 박"></button>
+  <button class="gourd g2" data-i="1" aria-label="2번 박 선택"><img src="assets/gourd_normal.png" alt="2번 박"></button>
+  <button class="gourd g3" data-i="2" aria-label="3번 박 선택"><img src="assets/gourd_normal.png" alt="3번 박"></button>
+  <div class="label l1">1번 박</div><div class="label l2">2번 박</div><div class="label l3">3번 박</div>
+  <div class="hint" id="hint">박을 누르면 바로 결과가 나와요</div>
+  <section class="overlay" id="resultOverlay"><div class="panel result">
+    <div class="ribbon">결과 확인</div><div class="iconbox"><img id="resultIcon" alt=""></div>
+    <div class="rtitle" id="resultTitle">선물 획득!</div><div class="rname" id="resultName"></div><div class="msg" id="resultMsg"></div>
+    <button class="btn retry" id="retry">다시 하기</button>
+  </div></section>
+  <section class="overlay" id="settingsOverlay"><div class="panel settingsPanel">
+    <button class="close" id="close">×</button><div class="stitle">상품 · 결과 설정</div>
+    <div class="sdesc">최대 5개까지 입력할 수 있습니다. 게임 화면에는 확률이 표시되지 않습니다.</div>
+    <div class="rows" id="rows"></div><div class="total">전체 비율 <b id="total">100</b>%</div><div class="error" id="error"></div>
+    <div class="actions"><button class="btn secondary" id="defaults">기본값 복원</button><button class="btn" id="save">설정 저장</button></div>
+  </div></section>
+  <div class="toast" id="toast">설정이 저장되었습니다.</div>
+</main>
+<script>
+(function(){
+var A={normal:"assets/gourd_normal.png",broken:"assets/gourd_broken.png",empty:"assets/gourd_broken.png",coin:"assets/reward_general.png",bag:"assets/reward_win.png",gold:"assets/reward_jackpot.png"};
+var D=[{name:"꽝",pct:10,icon:"empty"},{name:"우드아트 체험",pct:40,icon:"bag"},{name:"코리즈 키링만들기 체험",pct:20,icon:"gold"},{name:"모란도 엽서",pct:30,icon:"coin"},{name:"",pct:0,icon:"bag"}],key="heungbu-gourd-ipad-v3",rewards=load(),locked=false;
+var qs=function(s){return document.querySelector(s)},qsa=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var ro=qs("#resultOverlay"),so=qs("#settingsOverlay"),hint=qs("#hint"),rows=qs("#rows"),total=qs("#total"),err=qs("#error"),toast=qs("#toast");
+function load(){try{var x=JSON.parse(localStorage.getItem(key));if(Array.isArray(x)&&x.reduce(function(a,b){return a+(+b.pct||0)},0)===100)return x}catch(e){}return D.map(function(x){return Object.assign({},x)})}
+function pick(){var a=rewards.filter(function(x){return x.name.trim()&&x.pct>0}),n=Math.random()*100,s=0;for(var i=0;i<a.length;i++){s+=+a[i].pct;if(n<s)return a[i]}return a[a.length-1]}
+function miss(n){return /(꽝|없음|실패|다음\s*기회)/.test(n)}
+function choose(btn){if(locked)return;locked=true;qsa(".gourd").forEach(function(b){b.disabled=true});btn.querySelector("img").src=A.broken;hint.textContent="박이 열렸어요!";var r=pick();setTimeout(function(){qs("#resultIcon").src=A[r.icon]||A.bag;qs("#resultTitle").textContent=miss(r.name)?"아쉽네요!":"선물 획득!";qs("#resultName").textContent=r.name;qs("#resultMsg").textContent=miss(r.name)?"다음 박에는 행운이 기다리고 있을지도 몰라요.":"축하합니다! 선택한 박에서 선물이 나왔어요.";ro.classList.add("show")},280)}
+function reset(){ro.classList.remove("show");locked=false;qsa(".gourd").forEach(function(b){b.disabled=false;b.querySelector("img").src=A.normal});hint.textContent="박을 누르면 바로 결과가 나와요"}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function draw(data){rows.innerHTML="";data.forEach(function(r,i){var d=document.createElement("div");d.className="row";d.innerHTML='<div class="num">'+(i+1)+'</div><input class="name" type="text" maxlength="40" value="'+esc(r.name)+'" placeholder="상품 또는 결과명"><select class="icon"><option value="empty">빈 박</option><option value="coin">엽전</option><option value="bag">복주머니</option><option value="gold">황금박</option></select><input class="range" type="range" min="0" max="100" step="1" value="'+r.pct+'"><input class="pct" type="number" min="0" max="100" step="1" value="'+r.pct+'">';rows.appendChild(d);d.querySelector(".icon").value=r.icon;var rg=d.querySelector(".range"),pn=d.querySelector(".pct");rg.oninput=function(){pn.value=rg.value;validate()};pn.oninput=function(){var v=Math.max(0,Math.min(100,+pn.value||0));pn.value=v;rg.value=v;validate()};d.querySelector(".name").oninput=validate});validate()}
+function read(){return qsa(".row").map(function(d){return {name:d.querySelector(".name").value.trim(),pct:+d.querySelector(".pct").value||0,icon:d.querySelector(".icon").value}})}
+function validate(){var a=read(),s=a.reduce(function(x,y){return x+y.pct},0),ok=s===100&&a.some(function(x){return x.name&&x.pct>0})&&!a.some(function(x){return x.pct>0&&!x.name});total.textContent=s;err.textContent=s!==100?"전체 비율이 100%가 되도록 조절해주세요. (현재 "+s+"%)":(!ok?"비율이 있는 항목에는 이름을 입력해주세요.":"");return ok}
+function openSettings(){draw(rewards);so.classList.add("show")}function closeSettings(){so.classList.remove("show")}
+function save(){if(!validate())return;rewards=read();try{localStorage.setItem(key,JSON.stringify(rewards))}catch(e){}closeSettings();toast.classList.add("show");setTimeout(function(){toast.classList.remove("show")},1500)}
+function tap(el,fn){var last=0;el.addEventListener("pointerup",function(e){if(e.pointerType==="touch"||e.pointerType==="pen"){last=Date.now();e.preventDefault();fn(e)}},{passive:false});el.addEventListener("click",function(e){if(Date.now()-last<650){e.preventDefault();return}fn(e)})}
+qsa(".gourd").forEach(function(b){tap(b,function(){choose(b)})});tap(qs("#retry"),reset);tap(qs("#settingsBtn"),openSettings);tap(qs("#close"),closeSettings);tap(qs("#save"),save);tap(qs("#defaults"),function(){draw(D.map(function(x){return Object.assign({},x)}))});
+function vh(){var h=window.visualViewport?window.visualViewport.height:window.innerHeight;document.documentElement.style.setProperty("--h",h+"px")}vh();addEventListener("resize",vh,{passive:true});if(window.visualViewport)visualViewport.addEventListener("resize",vh,{passive:true});
+})();
+</script>
+</body></html>
