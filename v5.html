@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#29a9ee" />
+<title>플리블리 랜덤 박타기 게임</title>
+<style>
+:root{--brown:#4a1708;--cream:#fff4c9;--gold:#ffc92e;--orange:#ff8a13}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#172a38;font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;touch-action:manipulation}
+button,input,select{font:inherit}
+#app{position:fixed;inset:0;display:grid;place-items:center;background:#172a38}
+#stage{position:relative;width:min(100vw,calc(100vh * 4 / 3));height:min(100vh,calc(100vw * 3 / 4));overflow:hidden;background:#55c6f3;isolation:isolate}
+.asset{position:absolute;display:block;pointer-events:none}
+.bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.title{z-index:5;left:50%;top:3.2%;transform:translateX(-50%);width:56%;height:auto;filter:drop-shadow(0 6px 2px rgba(61,25,4,.16))}
+.bird-btn{position:absolute;z-index:25;right:8.2%;top:13.5%;width:10.2%;aspect-ratio:439/389;border:0;background:transparent;padding:0;cursor:pointer;transform:rotate(-2deg);transition:transform .16s ease,filter .16s ease;touch-action:manipulation}
+.bird-btn img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.bird-btn:hover,.bird-btn:focus-visible{transform:rotate(-2deg) scale(1.08);filter:drop-shadow(0 0 10px #fff3a8)}
+.hint{position:absolute;z-index:9;left:50%;top:42.3%;transform:translateX(-50%);padding:.48em 1.35em;border-radius:999px;background:rgba(255,248,216,.94);border:2px solid rgba(91,45,10,.35);color:#6c2d10;font-weight:900;font-size:clamp(12px,1.35vw,22px);box-shadow:0 5px 12px rgba(78,42,15,.14);white-space:nowrap;opacity:0;transition:opacity .2s ease}
+.hint.show{opacity:1}
+.gourds{position:absolute;z-index:10;left:50%;top:48.2%;transform:translateX(-50%);width:60%;height:39%;display:flex;justify-content:center;align-items:center;gap:0}
+.gourd{position:relative;width:34%;height:100%;border:0;padding:0;background:transparent;cursor:pointer;touch-action:manipulation;transform:scale(1);transition:transform .16s ease,filter .16s ease;filter:drop-shadow(0 8px 5px rgba(71,39,9,.12))}
+.gourd img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.gourd.hovered,.gourd.selected{transform:scale(1.1);filter:drop-shadow(0 0 8px #ffe45c) drop-shadow(0 0 18px #ffc400) drop-shadow(0 10px 6px rgba(71,39,9,.16));z-index:3}
+.gourd.opening{animation:openPop .36s cubic-bezier(.2,.8,.2,1)}
+@keyframes openPop{0%{transform:scale(1.1)}45%{transform:scale(1.16)}100%{transform:scale(1.02)}}
+.char{z-index:12;bottom:12.2%;height:31.5%;width:auto;object-fit:contain;filter:drop-shadow(0 7px 4px rgba(64,31,7,.15))}
+.heungbu{left:4.5%}.woman{right:4.2%}
+.foreground{z-index:20;left:0;bottom:0;width:100%;height:100%;object-fit:cover}
+.start-btn{position:absolute;z-index:24;left:50%;bottom:4.5%;transform:translateX(-50%);width:28%;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation;transition:transform .15s ease,filter .15s ease}
+.start-btn img{width:100%;display:block;pointer-events:none}
+.start-btn:hover,.start-btn:focus-visible{transform:translateX(-50%) scale(1.04);filter:drop-shadow(0 0 10px #fff6a0)}
+.start-btn:active{transform:translateX(-50%) scale(.98)}
+.start-btn.hidden{display:none}
+
+.overlay{position:absolute;inset:0;z-index:60;display:grid;place-items:center;background:rgba(24,14,6,.38);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .18s ease}
+.overlay.show{opacity:1;pointer-events:auto}
+.result-card{width:min(520px,72%);min-height:58%;padding:4.5% 5% 4%;border-radius:34px;background:linear-gradient(#fffdf0,#fff2c7);border:5px solid #7a360e;box-shadow:0 14px 0 #4b2108,0 22px 38px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#57240c;transform:scale(.88);transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.overlay.show .result-card{transform:scale(1)}
+.reward-icon{height:clamp(90px,15vh,150px);max-width:52%;object-fit:contain;margin-bottom:clamp(20px,3.2vh,34px)}
+.result-title{font-size:clamp(24px,3vw,44px);font-weight:1000;line-height:1.05;margin:0 0 16px;color:#6d2c0c}
+.result-name{font-size:clamp(19px,2.2vw,34px);font-weight:1000;line-height:1.25;margin:0 0 12px;color:#b74c09}
+.result-desc{font-size:clamp(12px,1.25vw,19px);font-weight:800;line-height:1.45;margin:0 0 24px;color:#7a573e;max-width:90%}
+.confirm{min-width:44%;padding:.72em 1.4em;border:3px solid #6a2b0c;border-radius:999px;background:linear-gradient(#ffe24f,#ff9f16);color:#4a1a08;font-weight:1000;font-size:clamp(16px,1.7vw,26px);box-shadow:0 5px 0 #a84c0c;cursor:pointer;touch-action:manipulation}
+.confirm:active{transform:translateY(3px);box-shadow:0 2px 0 #a84c0c}
+
+.settings{position:absolute;inset:0;z-index:80;background:rgba(23,14,7,.5);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .18s ease;padding:3%}
+.settings.show{opacity:1;pointer-events:auto}
+.settings-card{width:min(860px,88%);max-height:88%;overflow:auto;background:#fff8d9;border:5px solid #69300e;border-radius:28px;box-shadow:0 12px 0 #3c1b08,0 25px 50px rgba(0,0,0,.3);padding:24px;color:#51220c;-webkit-overflow-scrolling:touch}
+.settings-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}
+.settings-title{font-size:clamp(22px,2.5vw,36px);font-weight:1000;margin:0}.settings-sub{font-size:14px;font-weight:800;color:#8a5b37;margin:0 0 14px}.total{font-weight:1000;padding:8px 14px;border-radius:999px;background:#fff;border:2px solid #d8a34b}.total.bad{color:#c52316;border-color:#e05c4d;background:#fff1ef}
+.reward-list{display:grid;gap:8px}.reward-row{display:grid;grid-template-columns:36px minmax(170px,1fr) 110px 120px 42px;gap:8px;align-items:center;background:#fffdf2;border:2px solid #edcf8a;border-radius:14px;padding:8px}.idx{font-weight:1000;text-align:center}.reward-row input,.reward-row select{min-width:0;width:100%;border:2px solid #d7b46a;border-radius:10px;background:#fff;padding:9px 10px;color:#4c240e;font-weight:800;outline:none}.pct-wrap{display:flex;align-items:center;gap:4px}.pct-wrap input{text-align:right}.del{width:38px;height:38px;border-radius:50%;border:0;background:#f6d7c8;color:#8e2d13;font-weight:1000;font-size:18px;cursor:pointer}.settings-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}.sbtn{border:2px solid #6d310f;border-radius:999px;padding:10px 18px;font-weight:1000;background:#fff2be;color:#57240c;cursor:pointer}.sbtn.primary{background:linear-gradient(#ffe054,#ff9c16)}.sbtn:disabled{opacity:.45;cursor:not-allowed}
+.toast{position:absolute;z-index:100;left:50%;bottom:3%;transform:translate(-50%,20px);background:#4d220d;color:white;padding:10px 18px;border-radius:999px;font-weight:900;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-aspect-ratio:1/1){#app:after{content:"아이패드를 가로 방향으로 돌려주세요";position:fixed;inset:0;z-index:999;display:grid;place-items:center;text-align:center;padding:30px;background:#fff3c4;color:#5b280d;font-size:26px;font-weight:1000}}
+@media (max-height:700px){.char{bottom:10.5%;height:30%}.gourds{top:47.5%;height:40%}.title{top:2.3%;width:54%}.bird-btn{top:12%;}.hint{top:40.5%}.settings-card{padding:16px}.reward-row{padding:6px}}
+</style>
+</head>
+<body>
+<div id="app"><main id="stage" aria-label="플리블리 랜덤 박타기 게임">
+  <img class="asset bg" src="assets_v5/background.webp" alt="" draggable="false">
+  <img class="asset title" src="assets_v5/title.webp" alt="플리블리 랜덤 박타기 게임" draggable="false">
+  <button class="bird-btn" id="birdBtn" aria-label="보상 설정 열기"><img src="assets_v5/bird.webp" alt="제비"></button>
+  <div class="hint" id="hint">박을 한 번 눌러 선택하고, 한 번 더 눌러 열어보세요!</div>
+  <section class="gourds" aria-label="박 선택">
+    <button class="gourd" data-index="0" aria-label="첫 번째 박"><img src="assets_v5/gourd_normal.webp" alt=""></button>
+    <button class="gourd" data-index="1" aria-label="두 번째 박"><img src="assets_v5/gourd_normal.webp" alt=""></button>
+    <button class="gourd" data-index="2" aria-label="세 번째 박"><img src="assets_v5/gourd_normal.webp" alt=""></button>
+  </section>
+  <img class="asset char heungbu" src="assets_v5/heungbu.webp" alt="" draggable="false">
+  <img class="asset char woman" src="assets_v5/woman.webp" alt="" draggable="false">
+  <img class="asset foreground" src="assets_v5/foreground.webp" alt="" draggable="false">
+  <button class="start-btn" id="startBtn"><img src="assets_v5/start_button.webp" alt="게임 시작"></button>
+
+  <section class="overlay" id="resultOverlay" aria-hidden="true">
+    <div class="result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <img class="reward-icon" id="rewardIcon" src="assets_v5/reward_general.webp" alt="">
+      <h2 class="result-title" id="resultTitle">선물 획득!</h2>
+      <p class="result-name" id="resultName"></p>
+      <p class="result-desc" id="resultDesc">축하합니다! 선택한 박에서 선물이 나왔어요.</p>
+      <button class="confirm" id="confirmBtn">확인</button>
+    </div>
+  </section>
+
+  <section class="settings" id="settings" aria-hidden="true">
+    <div class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="settings-head"><h2 class="settings-title" id="settingsTitle">제비의 보상 설정</h2><div class="total" id="totalPct">합계 100%</div></div>
+      <p class="settings-sub">최대 10개까지 설정할 수 있습니다. 보상 확률의 합계는 100%가 되어야 저장됩니다.</p>
+      <div class="reward-list" id="rewardList"></div>
+      <div class="settings-actions">
+        <button class="sbtn" id="addReward">+ 보상 추가</button>
+        <div><button class="sbtn" id="cancelSettings">취소</button> <button class="sbtn primary" id="saveSettings">저장</button></div>
+      </div>
+    </div>
+  </section>
+  <div class="toast" id="toast"></div>
+</main></div>
+<script>
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const AS={normal:'assets_v5/gourd_normal.webp',selected:'assets_v5/gourd_selected.webp',broken:'assets_v5/gourd_broken.webp',icons:{zero:'assets_v5/reward_zero.webp',general:'assets_v5/reward_general.webp',win:'assets_v5/reward_win.webp',jackpot:'assets_v5/reward_jackpot.webp'}};
+const DEFAULTS=[
+ {name:'꽝',pct:10,icon:'zero'},
+ {name:'우드아트 체험',pct:40,icon:'general'},
+ {name:'코리즈 키링만들기 체험',pct:20,icon:'win'},
+ {name:'모란도 엽서',pct:30,icon:'jackpot'}
+];
+const KEY='pleebly-gourd-v5-rewards';
+let rewards=loadRewards(), gameStarted=false, selected=-1, locked=false, lastTap=0, resultTimer=null;
+const gourds=$$('.gourd'), startBtn=$('#startBtn'), hint=$('#hint'), resultOverlay=$('#resultOverlay');
+function loadRewards(){try{const v=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(v)&&v.length&&v.length<=10&&v.every(x=>typeof x.name==='string'&&Number.isFinite(+x.pct)))return v.map(x=>({name:x.name,pct:+x.pct,icon:AS.icons[x.icon]?x.icon:'general'}));}catch(e){} return DEFAULTS.map(x=>({...x}));}
+function saveRewards(v){rewards=v;localStorage.setItem(KEY,JSON.stringify(v));}
+function setGourd(i,state){const b=gourds[i],img=$('img',b);b.classList.toggle('selected',state==='selected');b.classList.toggle('hovered',state==='hover');img.src=state==='selected'||state==='hover'?AS.selected:state==='broken'?AS.broken:AS.normal;}
+function clearGourds(){gourds.forEach((b,i)=>{b.classList.remove('selected','hovered','opening');b.disabled=false;b.style.pointerEvents='auto';$('img',b).src=AS.normal;});selected=-1;}
+function startGame(){if(locked)return;gameStarted=true;clearGourds();startBtn.classList.add('hidden');hint.classList.add('show');}
+function resetAll(){if(resultTimer){clearTimeout(resultTimer);resultTimer=null;}resultOverlay.classList.remove('show');resultOverlay.setAttribute('aria-hidden','true');locked=false;gameStarted=false;clearGourds();hint.classList.remove('show');startBtn.classList.remove('hidden');}
+function chooseReward(){const total=rewards.reduce((a,r)=>a+Math.max(0,+r.pct||0),0);if(total<=0)return {name:'꽝',pct:100,icon:'zero'};let n=Math.random()*total;for(const r of rewards){n-=Math.max(0,+r.pct||0);if(n<0)return r;}return rewards[rewards.length-1];}
+function openGourd(i){if(locked)return;locked=true;gourds.forEach((b,j)=>{b.disabled=true;b.style.pointerEvents='none';if(j!==i)setGourd(j,'normal');});const b=gourds[i];b.classList.remove('selected','hovered');b.classList.add('opening');$('img',b).src=AS.broken;const r=chooseReward();resultTimer=setTimeout(()=>{resultTimer=null;$('#rewardIcon').src=AS.icons[r.icon]||AS.icons.general;const miss=/^(꽝|없음|실패|아쉽)/.test(r.name.trim());$('#resultTitle').textContent=miss?'아쉽네요!':'선물 획득!';$('#resultName').textContent=r.name;$('#resultDesc').textContent=miss?'다음 박에는 행운이 기다리고 있을지도 몰라요.':'축하합니다! 선택한 박에서 선물이 나왔어요.';resultOverlay.classList.add('show');resultOverlay.setAttribute('aria-hidden','false');},360);}
+function activateGourd(i){if(!gameStarted||locked)return;const now=Date.now();if(now-lastTap<220)return;lastTap=now;if(selected===i){openGourd(i);return;}selected=i;gourds.forEach((b,j)=>setGourd(j,j===i?'selected':'normal'));}
+gourds.forEach((b,i)=>{
+ b.addEventListener('mouseenter',()=>{if(!gameStarted||locked||selected===i)return;setGourd(i,'hover');});
+ b.addEventListener('mouseleave',()=>{if(!gameStarted||locked||selected===i)return;setGourd(i,'normal');});
+ b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();activateGourd(i);},{passive:false});
+});
+startBtn.addEventListener('click',e=>{e.preventDefault();startGame();},{passive:false});
+$('#confirmBtn').addEventListener('click',e=>{e.preventDefault();resetAll();},{passive:false});
+
+const settings=$('#settings'), list=$('#rewardList'), totalEl=$('#totalPct');
+const iconLabels={zero:'꽝',general:'일반',win:'당첨',jackpot:'대박'};
+let draft=[];
+function openSettings(){if(locked)return;draft=rewards.map(x=>({...x}));renderSettings();settings.classList.add('show');settings.setAttribute('aria-hidden','false');}
+function closeSettings(){settings.classList.remove('show');settings.setAttribute('aria-hidden','true');}
+function renderSettings(){list.innerHTML='';draft.forEach((r,i)=>{const row=document.createElement('div');row.className='reward-row';row.innerHTML=`<div class="idx">${i+1}</div><input class="rname" aria-label="${i+1}번 보상 이름" maxlength="30" value="${escapeHtml(r.name)}"><div class="pct-wrap"><input class="rpct" aria-label="${i+1}번 확률" type="number" min="0" max="100" step="1" value="${r.pct}"><b>%</b></div><select class="ricon" aria-label="${i+1}번 아이콘">${Object.entries(iconLabels).map(([k,v])=>`<option value="${k}" ${r.icon===k?'selected':''}>${v}</option>`).join('')}</select><button class="del" aria-label="삭제">×</button>`;list.appendChild(row);
+ const name=$('.rname',row),pct=$('.rpct',row),icon=$('.ricon',row);name.addEventListener('input',()=>draft[i].name=name.value);pct.addEventListener('input',()=>{draft[i].pct=Math.max(0,Math.min(100,+pct.value||0));updateTotal();});icon.addEventListener('change',()=>draft[i].icon=icon.value);$('.del',row).addEventListener('click',()=>{draft.splice(i,1);renderSettings();});});
+ $('#addReward').disabled=draft.length>=10;updateTotal();}
+function updateTotal(){const t=draft.reduce((a,r)=>a+(+r.pct||0),0);totalEl.textContent=`합계 ${t}%`;totalEl.classList.toggle('bad',Math.abs(t-100)>.001);$('#saveSettings').disabled=Math.abs(t-100)>.001||!draft.length||draft.some(r=>!r.name.trim());}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+$('#birdBtn').addEventListener('click',e=>{e.preventDefault();openSettings();},{passive:false});
+$('#cancelSettings').addEventListener('click',closeSettings);
+$('#addReward').addEventListener('click',()=>{if(draft.length>=10)return;draft.push({name:`보상 ${draft.length+1}`,pct:0,icon:'general'});renderSettings();});
+$('#saveSettings').addEventListener('click',()=>{const t=draft.reduce((a,r)=>a+(+r.pct||0),0);if(Math.abs(t-100)>.001||!draft.length||draft.some(r=>!r.name.trim()))return;saveRewards(draft.map(r=>({name:r.name.trim(),pct:+r.pct,icon:r.icon})));closeSettings();showToast('보상 설정을 저장했습니다.');});
+settings.addEventListener('click',e=>{if(e.target===settings)closeSettings();});
+function showToast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+// iPad Safari: ghost click / multi-fire 방지
+['touchstart','touchmove'].forEach(ev=>document.addEventListener(ev,()=>{}, {passive:true}));
+window.addEventListener('pageshow',()=>{locked=false;});
+})();
+</script>
+</body></html>
