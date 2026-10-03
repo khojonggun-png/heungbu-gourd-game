@@ -25,11 +25,11 @@ button,input,select{font:inherit}
 .gourds{position:absolute;z-index:10;left:50%;top:40%;transform:translateX(-50%);width:100%;height:48%;display:flex;justify-content:center;align-items:center;gap:0}
 .gourd{--shift:0%;position:relative;flex:0 0 33.333333%;height:100%;margin:0;border:0;padding:0;background:transparent;cursor:pointer;touch-action:manipulation;transform:translateX(var(--shift)) scale(1);transform-origin:center 58%;transition:transform .16s ease,filter .16s ease;filter:drop-shadow(0 8px 5px rgba(71,39,9,.12))}
 .gourd img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-.gourd:first-child{--shift:20%}.gourd:nth-child(2){--shift:0%}.gourd:last-child{--shift:-20%}
+.gourd:first-child{--shift:0%}.gourd:nth-child(2){--shift:0%}.gourd:last-child{--shift:0%}
 .gourd.hovered,.gourd.selected{transform:translateX(var(--shift)) scale(1.1);filter:drop-shadow(0 0 8px #ffe45c) drop-shadow(0 0 18px #ffc400) drop-shadow(0 10px 6px rgba(71,39,9,.16));z-index:3}
 .gourd.opening{animation:openPop .36s cubic-bezier(.2,.8,.2,1)}
 @keyframes openPop{0%{transform:translateX(var(--shift)) scale(1.1)}45%{transform:translateX(var(--shift)) scale(1.17)}100%{transform:translateX(var(--shift)) scale(1.02)}}
-.char{z-index:12;bottom:23%;height:33%;width:auto;object-fit:contain;filter:drop-shadow(0 7px 4px rgba(64,31,7,.15))}
+.char{z-index:12;bottom:18%;height:33%;width:auto;object-fit:contain;filter:drop-shadow(0 7px 4px rgba(64,31,7,.15))}
 .heungbu{left:2.2%}.woman{right:2.2%}
 .foreground{z-index:20;left:0;bottom:0;width:100%;height:100%;object-fit:cover}
 .start-btn{position:absolute;z-index:24;left:50%;bottom:7%;transform:translateX(-50%);width:28%;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation;transition:transform .15s ease,filter .15s ease}
@@ -57,7 +57,7 @@ button,input,select{font:inherit}
 .reward-list{display:grid;gap:8px}.reward-row{display:grid;grid-template-columns:36px minmax(170px,1fr) 110px 120px 42px;gap:8px;align-items:center;background:#fffdf2;border:2px solid #edcf8a;border-radius:14px;padding:8px}.idx{font-weight:1000;text-align:center}.reward-row input,.reward-row select{min-width:0;width:100%;border:2px solid #d7b46a;border-radius:10px;background:#fff;padding:9px 10px;color:#4c240e;font-weight:800;outline:none}.pct-wrap{display:flex;align-items:center;gap:4px}.pct-wrap input{text-align:right}.del{width:38px;height:38px;border-radius:50%;border:0;background:#f6d7c8;color:#8e2d13;font-weight:1000;font-size:18px;cursor:pointer}.settings-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}.sbtn{border:2px solid #6d310f;border-radius:999px;padding:10px 18px;font-weight:1000;background:#fff2be;color:#57240c;cursor:pointer}.sbtn.primary{background:linear-gradient(#ffe054,#ff9c16)}.sbtn:disabled{opacity:.45;cursor:not-allowed}
 .toast{position:absolute;z-index:100;left:50%;bottom:3%;transform:translate(-50%,20px);background:#4d220d;color:white;padding:10px 18px;border-radius:999px;font-weight:900;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media (max-aspect-ratio:1/1){#app:after{content:"아이패드를 가로 방향으로 돌려주세요";position:fixed;inset:0;z-index:999;display:grid;place-items:center;text-align:center;padding:30px;background:#fff3c4;color:#5b280d;font-size:26px;font-weight:1000}}
-@media (max-height:700px){.char{bottom:22%;height:32%}.gourds{top:40%;height:47%}.start-btn{bottom:7%}.title{top:3%;width:51%}.bird-btn{top:8%;}.settings-card{padding:16px}.reward-row{padding:6px}}
+@media (max-height:700px){.char{bottom:18%;height:32%}.gourds{top:40%;height:47%}.start-btn{bottom:7%}.title{top:3%;width:51%}.bird-btn{top:8%;}.settings-card{padding:16px}.reward-row{padding:6px}}
 </style>
 </head>
 <body>
