@@ -123,7 +123,7 @@ function unlockSound(){if(soundContext&&soundContext.state!=='running')soundCont
 function stopSound(){soundSequence++;if(currentSound){currentSound.onended=null;try{currentSound.stop();}catch(e){}currentSound=null;}}
 async function playSound(name,after){
  stopSound();const sequence=soundSequence;
- unlockSound();
+ if(soundContext&&soundContext.state!=='running'){try{await soundContext.resume();}catch(e){}}
  const buffer=soundBuffers[name]||await loadSound(name);
  if(sequence!==soundSequence)return;
  if(!buffer||!soundContext||soundContext.state!=='running'){if(after)after();return;}
