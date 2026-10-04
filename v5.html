@@ -104,6 +104,37 @@ button,input,select{font:inherit}
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const AS={normal:'assets_v5/gourd_normal.webp',selected:'assets_v5/gourd_selected.webp',broken:'assets_v5/gourd_broken.webp',icons:{zero:'assets_v5/reward_zero.webp',general:'assets_v5/reward_general.webp',win:'assets_v5/reward_win.webp',jackpot:'assets_v5/reward_jackpot.webp'}};
+
+const soundContextClass=window.AudioContext||window.webkitAudioContext;
+const soundContext=soundContextClass?new soundContextClass():null;
+const soundBuffers={}, soundLoads={};
+const soundNames=['on_select','cutting','reward_zero','reward_general','reward_jackpot'];
+let currentSound=null, soundSequence=0;
+function loadSound(name){
+ if(!soundContext)return Promise.resolve(null);
+ if(!soundLoads[name])soundLoads[name]=fetch('assets_v5/'+name+'.mp3')
+  .then(r=>{if(!r.ok)throw new Error('Audio unavailable');return r.arrayBuffer();})
+  .then(data=>soundContext.decodeAudioData(data))
+  .then(buffer=>soundBuffers[name]=buffer).catch(()=>null);
+ return soundLoads[name];
+}
+soundNames.forEach(loadSound);
+function unlockSound(){if(soundContext&&soundContext.state!=='running')soundContext.resume().catch(()=>{});}
+function stopSound(){soundSequence++;if(currentSound){currentSound.onended=null;try{currentSound.stop();}catch(e){}currentSound=null;}}
+async function playSound(name,after){
+ stopSound();const sequence=soundSequence;
+ unlockSound();
+ const buffer=soundBuffers[name]||await loadSound(name);
+ if(sequence!==soundSequence)return;
+ if(!buffer||!soundContext||soundContext.state!=='running'){if(after)after();return;}
+ const source=soundContext.createBufferSource();source.buffer=buffer;source.connect(soundContext.destination);
+ currentSound=source;source.onended=()=>{if(sequence!==soundSequence)return;currentSound=null;if(after)after();};
+ try{source.start();}catch(e){currentSound=null;if(after)after();}
+}
+document.addEventListener('click',e=>{
+ if(e.target.closest('button')&&!e.target.closest('.gourd')){unlockSound();playSound('on_select');}
+},true);
+
 const DEFAULTS=[
  {name:'꽝',pct:10,icon:'zero'},
  {name:'우드아트 체험',pct:40,icon:'general'},
@@ -120,8 +151,24 @@ function clearGourds(){gourds.forEach((b,i)=>{b.classList.remove('selected','hov
 function startGame(){if(locked)return;gameStarted=true;clearGourds();startBtn.classList.add('hidden');hint.classList.add('show');}
 function resetAll(){if(resultTimer){clearTimeout(resultTimer);resultTimer=null;}resultOverlay.classList.remove('show');resultOverlay.setAttribute('aria-hidden','true');locked=false;gameStarted=false;clearGourds();hint.classList.remove('show');startBtn.classList.remove('hidden');}
 function chooseReward(){const total=rewards.reduce((a,r)=>a+Math.max(0,+r.pct||0),0);if(total<=0)return {name:'꽝',pct:100,icon:'zero'};let n=Math.random()*total;for(const r of rewards){n-=Math.max(0,+r.pct||0);if(n<0)return r;}return rewards[rewards.length-1];}
-function openGourd(i){if(locked)return;locked=true;gourds.forEach((b,j)=>{b.disabled=true;b.style.pointerEvents='none';if(j!==i)setGourd(j,'normal');});const b=gourds[i];b.classList.remove('selected','hovered');b.classList.add('opening');$('img',b).src=AS.broken;const r=chooseReward();resultTimer=setTimeout(()=>{resultTimer=null;$('#rewardIcon').src=AS.icons[r.icon]||AS.icons.general;const miss=/^(꽝|없음|실패|아쉽)/.test(r.name.trim());$('#resultTitle').textContent=miss?'아쉽네요!':'선물 획득!';$('#resultName').textContent=r.name;$('#resultDesc').textContent=miss?'다음 박에는 행운이 기다리고 있을지도 몰라요.':'축하합니다! 선택한 박에서 선물이 나왔어요.';resultOverlay.classList.add('show');resultOverlay.setAttribute('aria-hidden','false');},360);}
-function activateGourd(i){if(!gameStarted||locked)return;const now=Date.now();if(now-lastTap<220)return;lastTap=now;if(selected===i){openGourd(i);return;}selected=i;gourds.forEach((b,j)=>setGourd(j,j===i?'selected':'normal'));}
+function openGourd(i){
+ if(locked)return;locked=true;
+ gourds.forEach((b,j)=>{b.disabled=true;b.style.pointerEvents='none';if(j!==i)setGourd(j,'normal');});
+ const b=gourds[i];b.classList.remove('selected','hovered');b.classList.add('opening');$('img',b).src=AS.broken;
+ const r=chooseReward(), openedAt=Date.now();
+ playSound('cutting',()=>{
+  resultTimer=setTimeout(()=>{
+   resultTimer=null;$('#rewardIcon').src=AS.icons[r.icon]||AS.icons.general;
+   const miss=r.icon==='zero'||/^(꽝|없음|실패|아쉽)/.test(r.name.trim());
+   $('#resultTitle').textContent=miss?'아쉽네요!':'선물 획득!';
+   $('#resultName').textContent=r.name;
+   $('#resultDesc').textContent=miss?'다음 박에는 행운이 기다리고 있을지도 몰라요.':'축하합니다! 선택한 박에서 선물이 나왔어요.';
+   resultOverlay.classList.add('show');resultOverlay.setAttribute('aria-hidden','false');
+   playSound(miss?'reward_zero':r.icon==='jackpot'?'reward_jackpot':'reward_general');
+  },Math.max(0,360-(Date.now()-openedAt)));
+ });
+}
+function activateGourd(i){if(!gameStarted||locked)return;const now=Date.now();if(now-lastTap<220)return;lastTap=now;if(selected===i){openGourd(i);return;}selected=i;playSound('on_select');gourds.forEach((b,j)=>setGourd(j,j===i?'selected':'normal'));}
 gourds.forEach((b,i)=>{
  b.addEventListener('mouseenter',()=>{if(!gameStarted||locked||selected===i)return;setGourd(i,'hover');});
  b.addEventListener('mouseleave',()=>{if(!gameStarted||locked||selected===i)return;setGourd(i,'normal');});
@@ -148,7 +195,7 @@ settings.addEventListener('click',e=>{if(e.target===settings)closeSettings();});
 function showToast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
 // iPad Safari: ghost click / multi-fire 방지
 ['touchstart','touchmove'].forEach(ev=>document.addEventListener(ev,()=>{}, {passive:true}));
-window.addEventListener('pageshow',()=>{locked=false;});
+window.addEventListener('pageshow',()=>{if(!gameStarted)locked=false;});
 })();
 </script>
 </body></html>
