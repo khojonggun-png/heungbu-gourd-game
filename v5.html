@@ -112,7 +112,7 @@ const soundNames=['on_select','cutting','reward_zero','reward_general','reward_j
 let currentSound=null, soundSequence=0;
 function loadSound(name){
  if(!soundContext)return Promise.resolve(null);
- if(!soundLoads[name])soundLoads[name]=fetch('assets_v5/'+name+'.mp3')
+ if(!soundLoads[name])soundLoads[name]=fetch('assets_v5/'+name+'.mp3'+(name==='cutting'?'?v=2':''))
   .then(r=>{if(!r.ok)throw new Error('Audio unavailable');return r.arrayBuffer();})
   .then(data=>soundContext.decodeAudioData(data))
   .then(buffer=>soundBuffers[name]=buffer).catch(()=>null);
