@@ -13,7 +13,7 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#172a38;font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;touch-action:manipulation}
 button,input,select{font:inherit}
 #app{position:fixed;inset:0;display:grid;place-items:center;background:#172a38}
-#stage{position:relative;width:min(100vw,calc(100vh * 4 / 3));height:min(100vh,calc(100vw * 3 / 4));overflow:hidden;background:#55c6f3;isolation:isolate}
+#stage{position:relative;width:min(100vw,calc(100vh * 4 / 3));height:min(100vh,calc(100vw * 3 / 4));width:min(100vw,calc(100dvh * 4 / 3));height:min(100dvh,calc(100vw * 3 / 4));overflow:hidden;background:#55c6f3;isolation:isolate}
 .asset{position:absolute;display:block;pointer-events:none}
 .bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .title{z-index:15;left:50%;top:3.8%;transform:translateX(-50%);width:52%;height:auto;filter:drop-shadow(0 6px 2px rgba(61,25,4,.16))}
@@ -56,7 +56,7 @@ button,input,select{font:inherit}
 .settings-title{font-size:clamp(22px,2.5vw,36px);font-weight:1000;margin:0}.settings-sub{font-size:14px;font-weight:800;color:#8a5b37;margin:0 0 14px}.total{font-weight:1000;padding:8px 14px;border-radius:999px;background:#fff;border:2px solid #d8a34b}.total.bad{color:#c52316;border-color:#e05c4d;background:#fff1ef}
 .reward-list{display:grid;gap:8px}.reward-row{display:grid;grid-template-columns:36px minmax(170px,1fr) 110px 120px 42px;gap:8px;align-items:center;background:#fffdf2;border:2px solid #edcf8a;border-radius:14px;padding:8px}.idx{font-weight:1000;text-align:center}.reward-row input,.reward-row select{min-width:0;width:100%;border:2px solid #d7b46a;border-radius:10px;background:#fff;padding:9px 10px;color:#4c240e;font-weight:800;outline:none}.pct-wrap{display:flex;align-items:center;gap:4px}.pct-wrap input{text-align:right}.del{width:38px;height:38px;border-radius:50%;border:0;background:#f6d7c8;color:#8e2d13;font-weight:1000;font-size:18px;cursor:pointer}.settings-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}.sbtn{border:2px solid #6d310f;border-radius:999px;padding:10px 18px;font-weight:1000;background:#fff2be;color:#57240c;cursor:pointer}.sbtn.primary{background:linear-gradient(#ffe054,#ff9c16)}.sbtn:disabled{opacity:.45;cursor:not-allowed}
 .toast{position:absolute;z-index:100;left:50%;bottom:3%;transform:translate(-50%,20px);background:#4d220d;color:white;padding:10px 18px;border-radius:999px;font-weight:900;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
-@media (max-aspect-ratio:1/1){#app:after{content:"아이패드를 가로 방향으로 돌려주세요";position:fixed;inset:0;z-index:999;display:grid;place-items:center;text-align:center;padding:30px;background:#fff3c4;color:#5b280d;font-size:26px;font-weight:1000}}
+
 @media (max-height:700px){.char{bottom:18%;height:32%}.gourds{top:40%;height:47%}.start-btn{bottom:7%}.title{top:3%;width:51%}.bird-btn{top:8%;}.settings-card{padding:16px}.reward-row{padding:6px}}
 </style>
 </head>
